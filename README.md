@@ -49,7 +49,6 @@ Documentação completa em [`docs/api.md`](../docs/api.md).
 
 - João Theobald
 - Kamine Ramos
-- Lisandra
 - Lisandra Gross
 
 > Projeto Integrador II — ADS | La Salle 2026/1
