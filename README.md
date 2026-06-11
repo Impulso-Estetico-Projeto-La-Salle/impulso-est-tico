@@ -1,32 +1,55 @@
-# 💅 Impulso Estético - Sistema de gestão para clínica de estética 
-- Cadastro de clientes, agendamentos e dashboard de indicadores. Node.js + PostgreSQL.
+# Impulso Estético — Backend
 
-> Projeto Integrador II — ADS1E0502E0159 | 2026/1  
-> Faculdade · Turma ADS
+API REST para gerenciamento de clientes, agendamentos e indicadores da clínica.
 
-## Integrantes
+## Stack
 
-| João Theobald  | [@joaotheobald](https://github.com/joaotheobald)   |
-| Kamine Ramos   | [@kamineramos](https://github.com/kamineramos)     |
-| Lisandra Gross | [@lisandragross](https://github.com/lisandragross) |
+- **Runtime:** Node.js v18+
+- **Framework:** Express
+- **Banco:** PostgreSQL 14+
+- **Driver:** node-postgres (pg)
 
-## 🛠️ Stack
-
-| Camada         | Tecnologia                        |
-|--------        |------------                       |
-| Backend        | Node.js + Express                 |
-| Banco de dados | PostgreSQL                        |
-| Frontend       | HTML + CSS + JavaScript (Vanilla) |
-| ORM/Query      | pg (node-postgres)                |
-
-## 🚀 Como rodar o projeto localmente
+## Como rodar
 
 ```bash
-cd backend
-cp .env.example .env
+# 1. Instale as dependências
 npm install
+
+# 2. Configure as variáveis de ambiente
+cp .env.example .env
+# Edite o .env com suas credenciais do PostgreSQL
+
+# 3. Crie as tabelas
 npm run migrate
+
+# 4. (Opcional) Popule com dados de teste
+npm run seed
+
+# 5. Inicie o servidor
 npm run dev
 ```
 
-Servidor em `http://localhost:3000`.
+Servidor disponível em `http://localhost:3000`.
+
+## Endpoints
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/api/clientes` | Lista clientes |
+| POST | `/api/clientes` | Cadastra cliente |
+| PUT | `/api/clientes/:id` | Atualiza cliente |
+| GET | `/api/agendamentos` | Lista agendamentos |
+| POST | `/api/agendamentos` | Cria agendamento |
+| PATCH | `/api/agendamentos/:id` | Atualiza status |
+| GET | `/api/dashboard` | Indicadores gerais |
+
+Documentação completa em [`docs/api.md`](../docs/api.md).
+
+## Integrantes
+
+- João Theobald
+- Kamine Ramos
+- Lisandra
+- Lisandra Gross
+
+> Projeto Integrador II — ADS | La Salle 2026/1
