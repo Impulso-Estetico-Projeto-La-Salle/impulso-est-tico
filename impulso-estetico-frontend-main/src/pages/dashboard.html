@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Impulso Estético</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .stat-card { background: var(--branco); border: 1px solid var(--borda); border-radius: 12px; padding: 24px; }
+    .stat-card .label { font-size: .8rem; color: var(--cinza); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .05em; }
+    .stat-card .value { font-size: 2rem; font-weight: 600; }
+    .stat-card .value.rosa { color: var(--rosa); }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .section-title { font-size: 1rem; font-weight: 600; margin-bottom: 16px; }
+    @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } .main { padding: 20px; } }
+  </style>
+</head>
+<body>
+  <div id="sidebar"></div>
+
+  <main class="main">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-sub">Visão geral da clínica</p>
+
+    <!-- Cards de indicadores -->
+    <div class="cards-grid">
+      <div class="stat-card">
+        <div class="label">Atendimentos totais</div>
+        <div class="value rosa" id="total-atendimentos">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Agendamentos esta semana</div>
+        <div class="value" id="agendamentos-semana">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Taxa de cancelamento</div>
+        <div class="value" id="taxa-cancelamento">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Clientes inativos</div>
+        <div class="value" id="clientes-inativos">—</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <!-- Serviços mais procurados -->
+      <div class="card">
+        <div class="section-title">Serviços mais procurados</div>
+        <table>
+          <thead><tr><th>Serviço</th><th>Atendimentos</th></tr></thead>
+          <tbody id="tabela-servicos"><tr><td colspan="2">Carregando...</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- Clientes inativos -->
+      <div class="card">
+        <div class="section-title">Clientes sem retorno (+60 dias)</div>
+        <table>
+          <thead><tr><th>Cliente</th><th>Último atendimento</th></tr></thead>
+          <tbody id="tabela-inativos"><tr><td colspan="2">Carregando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script src="../components/sidebar.js"></script>
+  <script>
+    const API = 'http://localhost:3000/api';
+    Sidebar.render('dashboard');
+
+    async function carregarDashboard() {
+      try {
+        const res = await fetch(`${API}/dashboard`);
+        const d = await res.json();
+
+        document.getElementById('total-atendimentos').textContent = d.total_atendimentos;
+        document.getElementById('agendamentos-semana').textContent = d.agendamentos_semana;
+        document.getElementById('taxa-cancelamento').textContent = d.taxa_cancelamento.percentual + '%';
+        document.getElementById('clientes-inativos').textContent = d.clientes_inativos.length;
+
+        document.getElementById('tabela-servicos').innerHTML = d.servicos_mais_procurados
+          .map(s => `<tr><td>${s.nome}</td><td>${s.total}</td></tr>`).join('') || '<tr><td colspan="2">Nenhum dado</td></tr>';
+
+        document.getElementById('tabela-inativos').innerHTML = d.clientes_inativos
+          .map(c => `<tr><td>${c.nome}</td><td>${c.ultimo_atendimento ? new Date(c.ultimo_atendimento).toLocaleDateString('pt-BR') : 'Nunca atendida'}</td></tr>`)
+          .join('') || '<tr><td colspan="2">Nenhum cliente inativo</td></tr>';
+      } catch {
+        document.getElementById('total-atendimentos').textContent = 'Erro';
+      }
+    }
+
+    carregarDashboard();
+  </script>
+</body>
+</html>

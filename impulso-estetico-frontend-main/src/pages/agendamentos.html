@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agendamentos — Impulso Estético</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--branco); border-radius: 12px; padding: 32px; width: 100%; max-width: 460px; }
+    .modal h2 { font-size: 1.1rem; margin-bottom: 20px; }
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: .85rem; color: var(--cinza); margin-bottom: 4px; }
+    .field input, .field select { width: 100%; padding: 10px 12px; border: 1px solid var(--borda); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: .9rem; background: var(--bg); }
+    .field input:focus, .field select:focus { outline: 2px solid var(--rosa); border-color: transparent; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+    select.status-select { padding: 4px 8px; border-radius: 6px; border: 1px solid var(--borda); font-size: .82rem; cursor: pointer; background: var(--bg); }
+  </style>
+</head>
+<body>
+  <div id="sidebar"></div>
+
+  <main class="main">
+    <div class="top-bar">
+      <div>
+        <h1 class="page-title">Agendamentos</h1>
+        <p class="page-sub">Controle de horários e status</p>
+      </div>
+      <button class="btn btn-primary" onclick="abrirModal()">+ Novo agendamento</button>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Procedimento</th>
+            <th>Data e hora</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-agendamentos">
+          <tr><td colspan="4">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Modal novo agendamento -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <h2>Novo agendamento</h2>
+      <div class="field">
+        <label>Cliente *</label>
+        <select id="f-cliente"><option value="">Selecione...</option></select>
+      </div>
+      <div class="field">
+        <label>Procedimento *</label>
+        <select id="f-procedimento"><option value="">Selecione...</option></select>
+      </div>
+      <div class="field">
+        <label>Data e hora *</label>
+        <input type="datetime-local" id="f-data">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="fecharModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="salvarAgendamento()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../components/sidebar.js"></script>
+  <script>
+    const API = 'http://localhost:3000/api';
+    Sidebar.render('agendamentos');
+
+    const statusOpcoes = ['agendado','confirmado','concluido','cancelado','faltou'];
+
+    function formatarData(iso) {
+      return new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+    }
+
+    async function carregarAgendamentos() {
+      try {
+        const res = await fetch(`${API}/agendamentos`);
+        const lista = await res.json();
+        document.getElementById('tabela-agendamentos').innerHTML = lista.length
+          ? lista.map(a => `
+              <tr>
+                <td>${a.cliente_nome}</td>
+                <td>${a.procedimento_nome}</td>
+                <td>${formatarData(a.data_hora)}</td>
+                <td>
+                  <select class="status-select" onchange="atualizarStatus(${a.id}, this.value)">
+                    ${statusOpcoes.map(s => `<option value="${s}" ${s === a.status ? 'selected' : ''}>${s}</option>`).join('')}
+                  </select>
+                </td>
+              </tr>`).join('')
+          : '<tr><td colspan="4">Nenhum agendamento encontrado.</td></tr>';
+      } catch {
+        document.getElementById('tabela-agendamentos').innerHTML = '<tr><td colspan="4">Erro ao carregar agendamentos.</td></tr>';
+      }
+    }
+
+    async function atualizarStatus(id, status) {
+      await fetch(`${API}/agendamentos/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+    }
+
+    async function abrirModal() {
+      // Carrega clientes e procedimentos nos selects
+      const [clientes, procedimentos] = await Promise.all([
+        fetch(`${API}/clientes`).then(r => r.json()),
+        fetch(`${API}/procedimentos`).then(r => r.json()).catch(() => []),
+      ]);
+
+      document.getElementById('f-cliente').innerHTML =
+        '<option value="">Selecione...</option>' +
+        clientes.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+
+      document.getElementById('f-procedimento').innerHTML =
+        '<option value="">Selecione...</option>' +
+        procedimentos.map(p => `<option value="${p.id}">${p.nome} — R$ ${p.preco}</option>`).join('');
+
+      document.getElementById('modal').classList.add('open');
+    }
+
+    function fecharModal() { document.getElementById('modal').classList.remove('open'); }
+
+    async function salvarAgendamento() {
+      const cliente_id     = document.getElementById('f-cliente').value;
+      const procedimento_id = document.getElementById('f-procedimento').value;
+      const data_hora      = document.getElementById('f-data').value;
+
+      if (!cliente_id || !procedimento_id || !data_hora) {
+        alert('Preencha todos os campos obrigatórios.'); return;
+      }
+
+      await fetch(`${API}/agendamentos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cliente_id, procedimento_id, data_hora })
+      });
+
+      fecharModal();
+      carregarAgendamentos();
+    }
+
+    carregarAgendamentos();
+  </script>
+</body>
+</html>

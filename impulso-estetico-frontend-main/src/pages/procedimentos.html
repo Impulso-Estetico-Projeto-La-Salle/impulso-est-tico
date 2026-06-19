@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Procedimentos — Impulso Estético</title>
+
+  <link rel="stylesheet" href="../assets/style.css">
+
+  <style>
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.4);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--branco);
+      border-radius: 12px;
+      padding: 32px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .modal h2 {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-size: .85rem;
+      color: var(--cinza);
+      margin-bottom: 4px;
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--borda);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      background: var(--bg);
+      resize: vertical;
+    }
+
+    .field input:focus,
+    .field textarea:focus {
+      outline: 2px solid var(--rosa);
+      border-color: transparent;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="sidebar"></div>
+
+  <main class="main">
+
+    <div class="top-bar">
+      <div>
+        <h1 class="page-title">Procedimentos</h1>
+        <p class="page-sub">Gerenciamento dos procedimentos da clínica</p>
+      </div>
+
+      <button class="btn btn-primary" onclick="abrirModal()">
+        + Novo procedimento
+      </button>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Descrição</th>
+            <th>Preço</th>
+            <th>Duração</th>
+          </tr>
+        </thead>
+
+        <tbody id="tabela-procedimentos">
+          <tr>
+            <td colspan="4">Carregando...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+
+      <h2>Novo procedimento</h2>
+
+      <div class="field">
+        <label>Nome *</label>
+        <input type="text" id="f-nome">
+      </div>
+
+      <div class="field">
+        <label>Descrição</label>
+        <textarea id="f-descricao" rows="3"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Preço *</label>
+        <input type="number" step="0.01" id="f-preco">
+      </div>
+
+      <div class="field">
+        <label>Duração (minutos) *</label>
+        <input type="number" id="f-duracao">
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="fecharModal()">
+          Cancelar
+        </button>
+
+        <button class="btn btn-primary" onclick="salvarProcedimento()">
+          Salvar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../components/sidebar.js"></script>
+
+  <script>
+
+    const API = 'http://localhost:3000/api';
+
+    Sidebar.render('procedimentos');
+
+    async function carregarProcedimentos() {
+
+      try {
+
+        const res = await fetch(`${API}/procedimentos`);
+        const lista = await res.json();
+
+        document.getElementById('tabela-procedimentos').innerHTML =
+          lista.length
+            ? lista.map(p => `
+                <tr>
+                  <td>${p.nome}</td>
+                  <td>${p.descricao || '-'}</td>
+                  <td>R$ ${Number(p.preco || 0).toFixed(2)}</td>
+                  <td>${p.duracao_min} min</td>
+                </tr>
+              `).join('')
+            : `
+              <tr>
+                <td colspan="4">
+                  Nenhum procedimento cadastrado.
+                </td>
+              </tr>
+            `;
+
+      } catch (erro) {
+
+        document.getElementById('tabela-procedimentos').innerHTML = `
+          <tr>
+            <td colspan="4">
+              Erro ao carregar procedimentos.
+            </td>
+          </tr>
+        `;
+
+      }
+
+    }
+
+    function abrirModal() {
+      document.getElementById('modal').classList.add('open');
+    }
+
+    function fecharModal() {
+      document.getElementById('modal').classList.remove('open');
+
+      document.getElementById('f-nome').value = '';
+      document.getElementById('f-descricao').value = '';
+      document.getElementById('f-preco').value = '';
+      document.getElementById('f-duracao').value = '';
+    }
+
+    async function salvarProcedimento() {
+
+      const nome = document.getElementById('f-nome').value.trim();
+      const descricao = document.getElementById('f-descricao').value.trim();
+      const preco = document.getElementById('f-preco').value;
+      const duracao_min = document.getElementById('f-duracao').value;
+
+      if (!nome || !preco || !duracao_min) {
+        alert('Preencha todos os campos obrigatórios.');
+        return;
+      }
+
+      try {
+
+        await fetch(`${API}/procedimentos`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            nome,
+            descricao,
+            preco,
+            duracao_min
+          })
+        });
+
+        fecharModal();
+        carregarProcedimentos();
+
+      } catch {
+
+        alert('Erro ao salvar procedimento.');
+
+      }
+
+    }
+
+    carregarProcedimentos();
+
+  </script>
+
+</body>
+</html>

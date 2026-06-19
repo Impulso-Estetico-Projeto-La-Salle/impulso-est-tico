@@ -1,0 +1,131 @@
+/* =============================================
+   Impulso Estético — Estilos globais
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600&display=swap');
+
+:root {
+  --rosa:      #C9748A;
+  --rosa-soft: #F2D9DF;
+  --escuro:    #1A1A1A;
+  --cinza:     #6B6B6B;
+  --bg:        #F7F4F2;
+  --branco:    #FFFFFF;
+  --borda:     #E8E0DC;
+  --sidebar-w: 220px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--escuro);
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--escuro);
+  color: var(--branco);
+  display: flex;
+  flex-direction: column;
+  padding: 32px 0;
+  position: fixed;
+  top: 0; left: 0;
+  height: 100vh;
+}
+
+.sidebar-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--rosa-soft);
+  padding: 0 24px 32px;
+  border-bottom: 1px solid #333;
+}
+
+.sidebar-logo span { display: block; font-family: 'DM Sans', sans-serif; font-size: .7rem; color: var(--cinza); margin-top: 2px; }
+
+.sidebar nav { margin-top: 24px; }
+
+.sidebar nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  color: #aaa;
+  text-decoration: none;
+  font-size: .9rem;
+  transition: background .15s, color .15s;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+  background: #2a2a2a;
+  color: var(--branco);
+  border-left: 3px solid var(--rosa);
+}
+
+/* ── Conteúdo principal ── */
+.main {
+  margin-left: var(--sidebar-w);
+  padding: 40px;
+  flex: 1;
+}
+
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  margin-bottom: 8px;
+}
+
+.page-sub { color: var(--cinza); font-size: .9rem; margin-bottom: 32px; }
+
+/* ── Cards ── */
+.card {
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+/* ── Botão primário ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .9rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: opacity .15s;
+}
+.btn:hover { opacity: .85; }
+.btn-primary { background: var(--rosa); color: var(--branco); }
+.btn-outline  { background: transparent; color: var(--rosa); border: 1.5px solid var(--rosa); }
+
+/* ── Tabela ── */
+table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+th { text-align: left; padding: 10px 14px; color: var(--cinza); font-weight: 500; border-bottom: 1px solid var(--borda); }
+td { padding: 12px 14px; border-bottom: 1px solid var(--borda); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg); }
+
+/* ── Badge de status ── */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: .78rem;
+  font-weight: 500;
+}
+.badge-agendado  { background: #E8F0FE; color: #3B6FD4; }
+.badge-confirmado{ background: #E6F4EA; color: #2E7D32; }
+.badge-concluido { background: #F3E5F5; color: #7B1FA2; }
+.badge-cancelado { background: #FCE8E8; color: #C62828; }
+.badge-faltou    { background: #FFF3E0; color: #E65100; }
