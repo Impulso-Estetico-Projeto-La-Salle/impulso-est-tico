@@ -9,10 +9,6 @@ const pool = new Pool({
   database: process.env.DB_NAME,
 });
 
-pool.on('connect', () => {
-  console.log('✅ Conectado ao PostgreSQL');
-});
-
 pool.on('error', (err) => {
   console.error('❌ Erro na conexão com o banco:', err.message);
   process.exit(1);
