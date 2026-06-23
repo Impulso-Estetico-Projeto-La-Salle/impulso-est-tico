@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Impulso Estético</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    ✨ Impulso Estético
+    <div style="font-size: 14px; opacity: 0.9;">
+      Sistema de gestão de clientes e agendamentos
+    </div>
+  </div>
+
+  <!-- FORM: CRIAR CLIENTE -->
+  <div class="section">
+    <h2>Novo Cliente</h2>
+
+    <div class="card">
+      <input id="nome" placeholder="Nome">
+      <input id="email" placeholder="Email">
+      <input id="telefone" placeholder="Telefone">
+
+      <button class="btn-primary" onclick="criarCliente()">
+        Salvar Cliente
+      </button>
+    </div>
+  </div>
+
+  <!-- FORM: CRIAR AGENDAMENTO -->
+  <div class="section">
+    <h2>Novo Agendamento</h2>
+
+    <div class="card">
+      <input id="cliente_id" placeholder="ID Cliente">
+      <input id="procedimento_id" placeholder="ID Procedimento">
+      <input id="data_hora" type="datetime-local">
+
+      <button class="btn-primary" onclick="criarAgendamento()">
+        Agendar
+      </button>
+    </div>
+  </div>
+
+  <!-- CLIENTES -->
+  <div class="section">
+    <h2>Clientes</h2>
+    <div id="clientes" class="grid"></div>
+  </div>
+
+  <!-- AGENDAMENTOS -->
+  <div class="section">
+    <h2>Agendamentos</h2>
+    <div id="agendamentos" class="grid"></div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="section">
+    <h2>Dashboard</h2>
+    <div id="dashboard" class="grid"></div>
+  </div>
+
+  <!-- PROCEDIMENTOS -->
+  <div class="section">
+    <h2>Procedimentos</h2>
+    <div id="procedimentos" class="grid"></div>
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
